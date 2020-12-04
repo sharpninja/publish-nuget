@@ -8,9 +8,7 @@ const SOURCE_NAME = "default";
 
 class Action {
 
-    
-    
-    
+
     constructor() {
         this.projectFile = process.env.INPUT_PROJECT_FILE_PATH
         this.packageName = process.env.INPUT_PACKAGE_NAME || process.env.PACKAGE_NAME
@@ -33,7 +31,7 @@ class Action {
             this.sourceType = "NuGet"
             addSourceCmd = `dotnet nuget add source ${this.nugetSource}/v3/index.json --name=${SOURCE_NAME}`
         }
-        
+
         console.log(this._executeCommand(addSourceCmd, { encoding: "utf-8" }).stdout)
         const list1 = this._executeCommand("dotnet nuget list source", { encoding: "utf8" }).stdout;
         const enable = this._executeCommand(`dotnet nuget enable source ${SOURCE_NAME}`, { encoding: "utf8" }).stdout;
@@ -86,9 +84,9 @@ class Action {
 
         const packages = fs.readdirSync(".").filter(fn => fn.endsWith("nupkg"))
         console.log(`Generated Package(s): ${packages.join(", ")}`)
-        
+
         const pushCmd = `dotnet nuget push *.nupkg -s ${(SOURCE_NAME)} ${this.nugetSource !== "GPR"? `-k ${this.nugetKey}`: ""} --skip-duplicate ${!this.includeSymbols ? "-n 1" : ""}`
-        
+
         const pushOutput = this._executeCommand(pushCmd, { encoding: "utf-8" }).stdout
 
         console.log(pushOutput)
