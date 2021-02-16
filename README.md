@@ -25,7 +25,7 @@ jobs:
       # Publish
       - name: publish on version change
         id: publish_nuget
-        uses: Rebel028/publish-nuget@2.6.0
+        uses: Rebel028/publish-nuget@2.6.1
         with:
           # Filepath of the project to be packaged, relative to root of repository
           PROJECT_FILE_PATH: Core/Core.csproj
