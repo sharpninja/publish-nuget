@@ -127,7 +127,7 @@ class Action {
 
          options = {
             method: "GET",
-            auth:`${this.githubUser}:${this.nugetKey}`
+            auth:`${this.nugetKey}`
         }
         //small hack to get package versions from Github Package Registry
         if (this.sourceType === "GPR") {
