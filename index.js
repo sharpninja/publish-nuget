@@ -140,6 +140,7 @@ class Action {
         console.log(url, options)
 
         https.get(url, options, (res) => {
+            console.log(`Got response: ${res}`)
             let body = ""
             
             console.log(`Status code: ${res.statusCode}: ${res.statusMessage}`)
