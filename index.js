@@ -4,7 +4,7 @@ const os = require("os"),
     https = require("https"),
     spawnSync = require("child_process").spawnSync
 
-const SOURCE_NAME = "default";
+const SOURCE_NAME =  process.env.INPUT_NUGET_SOURCE || process.env.NUGET_SOURCE || "default";
 
 class Action {
 
