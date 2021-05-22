@@ -133,10 +133,11 @@ class Action {
                 auth:`${this.githubUser}:${this.nugetKey}`
             }
             console.log(`This is GPR, changing url for versioning...`)
-            console.log(url)
         } else {
             url = `${this.nugetSource}/v3-flatcontainer/${this.packageName}/index.json`
         }
+
+        console.log(url, options)
 
         https.get(url, options, (res) => {
             let body = ""
