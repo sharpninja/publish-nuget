@@ -174,6 +174,7 @@ class Action {
             }
             
         }).on("error", e => {
+            console.log(`Got error: ${e}`)
             this._printErrorAndExit(`error: ${e.message}`)
         })
     }
