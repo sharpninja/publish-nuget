@@ -126,8 +126,7 @@ class Action {
         let options; //used for authentication
 
          options = {
-            method: "GET",
-            auth:`${this.nugetKey}`
+            method: "GET"
         }
         //small hack to get package versions from Github Package Registry
         if (this.sourceType === "GPR") {
