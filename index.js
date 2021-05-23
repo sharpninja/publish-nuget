@@ -62,7 +62,7 @@ class Action {
             }
 
             if(result.exitCode !== 0) {
-                throw new Error(`Calling '${cmd}' resulted in${os.EOL}${result.stderr}`)
+                throw new Error(`Calling '${cmd}' resulted in${os.EOL}${result.exitCode}, ${result.stderr}`)
             }
 
             console.log(`result: ${result.exitCode}, ${result.stdout}`);
