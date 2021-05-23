@@ -4,7 +4,7 @@ const os = require("os"),
     https = require("https"),
     spawnSync = require("child_process").spawnSync
 
-const SOURCE_NAME =  process.env.INPUT_NUGET_SOURCE || process.env.NUGET_SOURCE || "default";
+const SOURCE_NAME =  "default";
 
 class Action {
 
@@ -23,15 +23,15 @@ class Action {
         this.includeSymbols = JSON.parse(process.env.INPUT_INCLUDE_SYMBOLS || process.env.INCLUDE_SYMBOLS)
         this.throwOnVersionExixts = JSON.parse(process.env.INPUT_THOW_ERROR_IF_VERSION_EXISTS || process.env.THOW_ERROR_IF_VERSION_EXISTS)
 
-        const existingSources = this._executeCommand("dotnet nuget list source", { encoding: "utf8" }).stdout;
+        const existingSources = this._executeCommand("nuget sources list", { encoding: "utf8" }).stdout;
         if(existingSources.includes(this.nugetSource) === false) {
             let addSourceCmd;
             if (this.nugetSource.startsWith(`https://nuget.pkg.github.com/`)) {
                 this.sourceType = "GPR"
-                addSourceCmd = `dotnet nuget add source ${this.nugetSource}/index.json --name=${(SOURCE_NAME)} --username=${this.githubUser} --password=${this.nugetKey} --store-password-in-clear-text`
+                addSourceCmd = `nuget sourrces add ${this.nugetSource}/index.json --name=${(SOURCE_NAME)} --username=${this.githubUser} --password=${this.nugetKey} --store-password-in-clear-text`
             } else {
                 this.sourceType = "NuGet"
-                addSourceCmd = `dotnet nuget add source ${this.nugetSource}/v3/index.json --name=${SOURCE_NAME}`
+                addSourceCmd = `nuget sources add ${this.nugetSource}/v3/index.json -name ${SOURCE_NAME}`
             }
 
             console.log(this._executeCommand(addSourceCmd, { encoding: "utf-8" }).stdout)
@@ -39,8 +39,8 @@ class Action {
             console.log(this.nugetSource + " is already in sources.")
         }
         
-        const list1 = this._executeCommand("dotnet nuget list source", { encoding: "utf8" }).stdout;
-        const enable = this._executeCommand(`dotnet nuget enable source ${SOURCE_NAME}`, { encoding: "utf8" }).stdout;
+        const list1 = this._executeCommand("nuget sources list", { encoding: "utf8" }).stdout;
+        const enable = this._executeCommand(`nuget sources enable ${SOURCE_NAME}`, { encoding: "utf8" }).stdout;
         console.log(list1);
         console.log(enable);
     }
@@ -91,7 +91,7 @@ class Action {
         const packages = fs.readdirSync(".").filter(fn => fn.endsWith("nupkg"))
         console.log(`Generated Package(s): ${packages.join(", ")}`)
 
-        const pushCmd = `dotnet nuget push *.nupkg -s ${(SOURCE_NAME)} ${this.nugetSource !== "GPR"? `-k ${this.nugetKey}`: ""} --skip-duplicate ${!this.includeSymbols ? "-n 1" : ""}`
+        const pushCmd = `nuget push *.nupkg -src ${(SOURCE_NAME)} ${this.nugetSource !== "GPR"? `-ApiKey ${this.nugetKey}`: ""} -SkipDuplicate ${!this.includeSymbols ? "-NoSymbols" : ""}`
         
         console.log(pushCmd);
 
