@@ -199,7 +199,7 @@ class Action {
     }
 
     run() {
-        if(!this.NO_BUILD) {
+        if(!this.noBuild) {
             if (!this.projectFile || !fs.existsSync(this.projectFile)) {
                 this._printErrorAndExit("project file not found")
             }
