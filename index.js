@@ -86,7 +86,7 @@ class Action {
         this._executeCommand(`git tag ${TAG}`)
         this._executeCommand(`git push origin ${TAG}`)
 
-        process.write(`::set-output name=VERSION::${TAG}` + os.EOL)
+        console.log(`::set-output name=VERSION::${TAG}` + os.EOL)
     }
 
     _pushPackage(version, name) {
