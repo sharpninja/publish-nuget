@@ -116,7 +116,7 @@ class Action {
         for (const pkgIndex in packages) {
             const pkg = path.join(this.outputFolder, packages[pkgIndex]);
             if(fs.existsSync(pkg)) {
-                const pushCmd = `nuget push ${pkg} -src ${(SOURCE_NAME)} ${this.nugetSource !== "GPR" ? `-ApiKey ${this.nugetKey}` : ""} -SkipDuplicate ${!this.includeSymbols ? "-NoSymbols" : ""}`
+                const pushCmd = `nuget push ${pkg} -src ${this.nugetSource} ${this.nugetSource !== "GPR" ? `-ApiKey ${this.nugetKey}` : ""} -SkipDuplicate ${!this.includeSymbols ? "-NoSymbols" : ""}`
 
                 const pushOutput = this._executeCommand(pushCmd, {encoding: "utf-8"})
 
