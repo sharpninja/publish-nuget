@@ -104,28 +104,27 @@ class Action {
         this._executeCommand(`dotnet pack ${this.projectFile} ${this.includeSymbols ? "--include-symbols -p:SymbolPackageFormat=snupkg" : ""} -c Release -o .`)
 
         const packages = fs.readdirSync(".").filter(fn => fn.endsWith("nupkg"))
-        console.log(`Generated Package(s): ${packages.join(", ")}`)
 
         if(packages.length === 0) {
             throw Error('No packages were built.')
         }
 
-        const pushCmd = `nuget push *.nupkg -src ${(SOURCE_NAME)} ${this.nugetSource !== "GPR"? `-ApiKey ${this.nugetKey}`: ""} -SkipDuplicate ${!this.includeSymbols ? "-NoSymbols" : ""}`
-        
-        const pushOutput = this._executeCommand(pushCmd, { encoding: "utf-8" }).stdio
+        console.log(`Generated Package(s): ${packages.join(", ")}`)
+        for (const pkg in packages) {
+            const pushCmd = `nuget push ${pkg} -src ${(SOURCE_NAME)} ${this.nugetSource !== "GPR" ? `-ApiKey ${this.nugetKey}` : ""} -SkipDuplicate ${!this.includeSymbols ? "-NoSymbols" : ""}`
 
-        if (/error/.test(pushOutput))
-            this._printErrorAndExit(`${/error.*/.exec(pushOutput)[0]}`)
+            const pushOutput = this._executeCommand(pushCmd, {encoding: "utf-8"})
 
-        const packageFilename = packages.filter(p => p.endsWith(".nupkg"))[0],
-            symbolsFilename = packages.filter(p => p.endsWith(".snupkg"))[0]
+            if (/error/.test(pushOutput))
+                this._printErrorAndExit(`${/error.*/.exec(pushOutput)[0]}`)
 
-        console.log(`::set-output name=PACKAGE_NAME::${packageFilename}` + os.EOL)
-        console.log(`::set-output name=PACKAGE_PATH::${path.resolve(packageFilename)}` + os.EOL)
-
-        if (symbolsFilename) {
-            console.log(`::set-output name=SYMBOLS_PACKAGE_NAME::${symbolsFilename}` + os.EOL)
-            console.log(`::set-output name=SYMBOLS_PACKAGE_PATH::${path.resolve(symbolsFilename)}` + os.EOL)
+            if (pkg.endsWith("snupkg")) {
+                console.log(`::set-output name=SYMBOLS_PACKAGE_NAME::${pkg}` + os.EOL)
+                console.log(`::set-output name=SYMBOLS_PACKAGE_PATH::${path.resolve(pkg)}` + os.EOL)
+            } else {
+                console.log(`::set-output name=PACKAGE_NAME::${pkg}` + os.EOL)
+                console.log(`::set-output name=PACKAGE_PATH::${path.resolve(pkg)}` + os.EOL)
+            }
         }
 
         if (this.tagCommit)
