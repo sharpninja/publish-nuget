@@ -56,7 +56,8 @@ class Action {
         console.log(`executing: [${cmd}]`)
         try {
             const INPUT = cmd.split(" "), TOOL = INPUT[0], ARGS = INPUT.slice(1)
-            const result = spawnSync(TOOL, ARGS, options)
+            const result = spawnSync(TOOL, ARGS, options).stdio
+            if(!result) throw new Error(`Calling '${cmd}' resulted in undefined stdio.`)
 
             console.log(`result: ${result}`);
             return result;
