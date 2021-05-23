@@ -23,7 +23,7 @@ class Action {
         this.includeSymbols = JSON.parse(process.env.INPUT_INCLUDE_SYMBOLS || process.env.INCLUDE_SYMBOLS)
         this.throwOnVersionExixts = JSON.parse(process.env.INPUT_THOW_ERROR_IF_VERSION_EXISTS || process.env.THOW_ERROR_IF_VERSION_EXISTS)
 
-        const existingSources = this._executeCommand("nuget sources list", { encoding: "utf8" }).stdout;
+        const existingSources = this._executeCommand("nuget sources list", { encoding: "utf8" });
         let addSourceCmd;
         if(existingSources.includes(this.nugetSource + "/v3/index.json") === false) {
             if (this.nugetSource.startsWith(`https://nuget.pkg.github.com/`)) {
@@ -39,11 +39,11 @@ class Action {
             addSourceCmd = `nuget sources add -Source ${this.nugetSource}/v3/index.json -name ${SOURCE_NAME}`
         }
 
-        console.log(this._executeCommand(addSourceCmd, { encoding: "utf-8" }).stdout)
-        const enable = this._executeCommand(`nuget sources enable -Name ${SOURCE_NAME}`, { encoding: "utf8" }).stdout;
+        console.log(this._executeCommand(addSourceCmd, { encoding: "utf-8" }))
+        const enable = this._executeCommand(`nuget sources enable -Name ${SOURCE_NAME}`, { encoding: "utf8" });
         console.log(enable);
 
-        const list1 = this._executeCommand("nuget sources list", { encoding: "utf8" }).stdout;
+        const list1 = this._executeCommand("nuget sources list", { encoding: "utf8" });
         console.log(list1);
     }
 
@@ -65,15 +65,17 @@ class Action {
                 throw new Error(`Calling '${cmd}' resulted in${os.EOL}${result.exitCode}, ${result.stderr}`)
             }
 
-            console.log(`result: ${result.exitCode}, ${result.stdout}`);
-            return result.stdout;
+            const output = result.stdout;
+
+            console.log(`result: ${output}`);
+            return output;
         } catch(error) {
             throw error;
         }
     }
 
     _executeInProcess(cmd) {
-        this._executeCommand(cmd, { encoding: "utf-8", stdio: [process.stdin, process.stdout, process.stderr] })
+        this._executeCommand(cmd, { encoding: "utf-8", stdio: [process.stdin, process, process.stderr] })
     }
 
     _tagCommit(version) {
@@ -84,7 +86,7 @@ class Action {
         this._executeInProcess(`git tag ${TAG}`)
         this._executeInProcess(`git push origin ${TAG}`)
 
-        process.stdout.write(`::set-output name=VERSION::${TAG}` + os.EOL)
+        process.write(`::set-output name=VERSION::${TAG}` + os.EOL)
     }
 
     _pushPackage(version, name) {
@@ -116,12 +118,12 @@ class Action {
         const packageFilename = packages.filter(p => p.endsWith(".nupkg"))[0],
             symbolsFilename = packages.filter(p => p.endsWith(".snupkg"))[0]
 
-        process.stdout.write(`::set-output name=PACKAGE_NAME::${packageFilename}` + os.EOL)
-        process.stdout.write(`::set-output name=PACKAGE_PATH::${path.resolve(packageFilename)}` + os.EOL)
+        process.write(`::set-output name=PACKAGE_NAME::${packageFilename}` + os.EOL)
+        process.write(`::set-output name=PACKAGE_PATH::${path.resolve(packageFilename)}` + os.EOL)
 
         if (symbolsFilename) {
-            process.stdout.write(`::set-output name=SYMBOLS_PACKAGE_NAME::${symbolsFilename}` + os.EOL)
-            process.stdout.write(`::set-output name=SYMBOLS_PACKAGE_PATH::${path.resolve(symbolsFilename)}` + os.EOL)
+            process.write(`::set-output name=SYMBOLS_PACKAGE_NAME::${symbolsFilename}` + os.EOL)
+            process.write(`::set-output name=SYMBOLS_PACKAGE_PATH::${path.resolve(symbolsFilename)}` + os.EOL)
         }
 
         if (this.tagCommit)
