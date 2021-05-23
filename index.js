@@ -11,6 +11,8 @@ class Action {
 
     constructor() {
         this.projectFile = process.env.INPUT_PROJECT_FILE_PATH
+        this.outputFolder = process.env.INPUT_OUTPUT_FOLDER
+        this.noBuild = process.env.INPUT_NO_BUILD
         this.packageName = process.env.INPUT_PACKAGE_NAME || process.env.PACKAGE_NAME
         this.versionFile = process.env.INPUT_VERSION_FILE_PATH || process.env.VERSION_FILE_PATH || this.projectFile
         this.versionRegex = new RegExp(process.env.INPUT_VERSION_REGEX || process.env.VERSION_REGEX, "m")
@@ -99,11 +101,12 @@ class Action {
 
         console.log(`NuGet Source: ${this.nugetSource}`)
 
-        fs.readdirSync(".").filter(fn => /\.s?nupkg$/.test(fn)).forEach(fn => fs.unlinkSync(fn))
-        
-        this._executeCommand(`dotnet pack ${this.projectFile} ${this.includeSymbols ? "--include-symbols -p:SymbolPackageFormat=snupkg" : ""} -c Release -o .`)
+        if(!this.noBuild) {
+            fs.readdirSync(".").filter(fn => /\.s?nupkg$/.test(fn)).forEach(fn => fs.unlinkSync(fn))
 
-        const packages = fs.readdirSync(".").filter(fn => fn.endsWith("nupkg"))
+            this._executeCommand(`dotnet pack ${this.projectFile} ${this.includeSymbols ? "--include-symbols -p:SymbolPackageFormat=snupkg" : ""} -c Release -o .`)
+        }
+        const packages = fs.readdirSync(this.outputFolder).filter(fn => fn.endsWith("nupkg"))
 
         if(packages.length === 0) {
             throw Error('No packages were built.')

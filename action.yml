@@ -45,7 +45,14 @@ inputs:
         description: Flag to throw an error when trying to publish an existing version of a package
         required: false
         default: false
-
+    NO_BUILD:
+        description: Push all packages in output folder.
+        required: false
+        default: false
+    OUTPUT_FOLDER:
+        description: where built packages are staged.
+        required: false
+        default: .
 outputs:
     VERSION:
         description: Version of the associated git tag
