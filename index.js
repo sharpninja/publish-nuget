@@ -113,20 +113,25 @@ class Action {
         }
 
         console.log(`Generated Package(s): ${packages.join(", ")}`)
-        for (const pkg in packages) {
-            const pushCmd = `nuget push ${pkg} -src ${(SOURCE_NAME)} ${this.nugetSource !== "GPR" ? `-ApiKey ${this.nugetKey}` : ""} -SkipDuplicate ${!this.includeSymbols ? "-NoSymbols" : ""}`
+        for (const pkgIndex in packages) {
+            const pkg = path.join(this.outputFolder, packages[pkgIndex]);
+            if(fs.existsSync(pkg)) {
+                const pushCmd = `nuget push ${pkg} -src ${(SOURCE_NAME)} ${this.nugetSource !== "GPR" ? `-ApiKey ${this.nugetKey}` : ""} -SkipDuplicate ${!this.includeSymbols ? "-NoSymbols" : ""}`
 
-            const pushOutput = this._executeCommand(pushCmd, {encoding: "utf-8"})
+                const pushOutput = this._executeCommand(pushCmd, {encoding: "utf-8"})
 
-            if (/error/.test(pushOutput))
-                this._printErrorAndExit(`${/error.*/.exec(pushOutput)[0]}`)
+                if (/error/.test(pushOutput))
+                    this._printErrorAndExit(`${/error.*/.exec(pushOutput)[0]}`)
 
-            if (pkg.endsWith("snupkg")) {
-                console.log(`::set-output name=SYMBOLS_PACKAGE_NAME::${pkg}` + os.EOL)
-                console.log(`::set-output name=SYMBOLS_PACKAGE_PATH::${path.resolve(pkg)}` + os.EOL)
+                if (pkg.endsWith("snupkg")) {
+                    console.log(`::set-output name=SYMBOLS_PACKAGE_NAME::${pkg}` + os.EOL)
+                    console.log(`::set-output name=SYMBOLS_PACKAGE_PATH::${path.resolve(pkg)}` + os.EOL)
+                } else {
+                    console.log(`::set-output name=PACKAGE_NAME::${pkg}` + os.EOL)
+                    console.log(`::set-output name=PACKAGE_PATH::${path.resolve(pkg)}` + os.EOL)
+                }
             } else {
-                console.log(`::set-output name=PACKAGE_NAME::${pkg}` + os.EOL)
-                console.log(`::set-output name=PACKAGE_PATH::${path.resolve(pkg)}` + os.EOL)
+                console.log(`Cannot verify ${pkg} exists.`)
             }
         }
 
