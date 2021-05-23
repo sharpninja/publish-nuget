@@ -83,8 +83,8 @@ class Action {
 
         console.log(`✨ creating new tag ${TAG}`)
 
-        this._executeInProcess(`git tag ${TAG}`)
-        this._executeInProcess(`git push origin ${TAG}`)
+        this._executeCommand(`git tag ${TAG}`)
+        this._executeCommand(`git push origin ${TAG}`)
 
         process.write(`::set-output name=VERSION::${TAG}` + os.EOL)
     }
@@ -101,9 +101,7 @@ class Action {
 
         fs.readdirSync(".").filter(fn => /\.s?nupkg$/.test(fn)).forEach(fn => fs.unlinkSync(fn))
         
-        this._executeInProcess(`dotnet build -c Release ${this.projectFile}`)
-
-        this._executeInProcess(`dotnet pack ${this.includeSymbols ? "--include-symbols -p:SymbolPackageFormat=snupkg" : ""} --no-build -c Release ${this.projectFile} -o .`)
+        this._executeCommand(`dotnet pack ${this.includeSymbols ? "--include-symbols -p:SymbolPackageFormat=snupkg" : ""} -c Release ${this.projectFile} -o .`)
 
         const packages = fs.readdirSync(".").filter(fn => fn.endsWith("nupkg"))
         console.log(`Generated Package(s): ${packages.join(", ")}`)
