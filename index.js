@@ -4,7 +4,7 @@ const os = require("os"),
     https = require("https"),
     spawnSync = require("child_process").spawnSync
 
-const SOURCE_NAME =  "default";
+let SOURCE_NAME =  "default";
 
 class Action {
 
@@ -24,8 +24,8 @@ class Action {
         this.throwOnVersionExixts = JSON.parse(process.env.INPUT_THOW_ERROR_IF_VERSION_EXISTS || process.env.THOW_ERROR_IF_VERSION_EXISTS)
 
         const existingSources = this._executeCommand("nuget sources list", { encoding: "utf8" }).stdout;
+        let addSourceCmd;
         if(existingSources.includes(this.nugetSource) === false) {
-            let addSourceCmd;
             if (this.nugetSource.startsWith(`https://nuget.pkg.github.com/`)) {
                 this.sourceType = "GPR"
                 addSourceCmd = `nuget sourrces add ${this.nugetSource}/index.json --name=${(SOURCE_NAME)} --username=${this.githubUser} --password=${this.nugetKey} --store-password-in-clear-text`
@@ -33,16 +33,18 @@ class Action {
                 this.sourceType = "NuGet"
                 addSourceCmd = `nuget sources add ${this.nugetSource}/v3/index.json -name ${SOURCE_NAME}`
             }
-
-            console.log(this._executeCommand(addSourceCmd, { encoding: "utf-8" }).stdout)
         } else {
             console.log(this.nugetSource + " is already in sources.")
+            console.log(this._executeCommand(`nuget sources Remove ${this.nugetSource}`).stdio)
+            addSourceCmd = `nuget sources add ${this.nugetSource} -name ${SOURCE_NAME}`
         }
-        
-        const list1 = this._executeCommand("nuget sources list", { encoding: "utf8" }).stdout;
+
+        console.log(this._executeCommand(addSourceCmd, { encoding: "utf-8" }).stdout)
         const enable = this._executeCommand(`nuget sources enable ${SOURCE_NAME}`, { encoding: "utf8" }).stdout;
-        console.log(list1);
         console.log(enable);
+
+        const list1 = this._executeCommand("nuget sources list", { encoding: "utf8" }).stdout;
+        console.log(list1);
     }
 
     _printErrorAndExit(msg) {
