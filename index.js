@@ -92,6 +92,8 @@ class Action {
         console.log(`Generated Package(s): ${packages.join(", ")}`)
 
         const pushCmd = `dotnet nuget push *.nupkg -s ${(SOURCE_NAME)} ${this.nugetSource !== "GPR"? `-k ${this.nugetKey}`: ""} --skip-duplicate ${!this.includeSymbols ? "-n 1" : ""}`
+        
+        console.log(pushCmd);
 
         const pushOutput = this._executeCommand(pushCmd, { encoding: "utf-8" }).stdout
 
