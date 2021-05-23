@@ -54,9 +54,15 @@ class Action {
 
     _executeCommand(cmd, options) {
         console.log(`executing: [${cmd}]`)
+        try {
+            const INPUT = cmd.split(" "), TOOL = INPUT[0], ARGS = INPUT.slice(1)
+            const result = spawnSync(TOOL, ARGS, options)
 
-        const INPUT = cmd.split(" "), TOOL = INPUT[0], ARGS = INPUT.slice(1)
-        return spawnSync(TOOL, ARGS, options)
+            console.log(`result: ${result}`);
+            return result;
+        } catch(error) {
+            throw error;
+        }
     }
 
     _executeInProcess(cmd) {
@@ -95,11 +101,7 @@ class Action {
 
         const pushCmd = `nuget push *.nupkg -src ${(SOURCE_NAME)} ${this.nugetSource !== "GPR"? `-ApiKey ${this.nugetKey}`: ""} -SkipDuplicate ${!this.includeSymbols ? "-NoSymbols" : ""}`
         
-        console.log(pushCmd);
-
         const pushOutput = this._executeCommand(pushCmd, { encoding: "utf-8" }).stdio
-
-        console.log(`pushOutput: ${pushOutput}`);
 
         if (/error/.test(pushOutput))
             this._printErrorAndExit(`${/error.*/.exec(pushOutput)[0]}`)
