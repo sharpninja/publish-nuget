@@ -61,7 +61,7 @@ class Action {
                 throw new Error(`Calling '${cmd}' resulted in undefined childProcess.`)
             }
 
-            if(result.exitCode !== 0) {
+            if(result.exitCode !== undefined && result.exitCode !== 0) {
                 throw new Error(`Calling '${cmd}' resulted in${os.EOL}${result.exitCode}, ${result.stderr}`)
             }
 
