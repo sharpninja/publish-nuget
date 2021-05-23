@@ -40,7 +40,7 @@ class Action {
         }
 
         console.log(this._executeCommand(addSourceCmd, { encoding: "utf-8" }).stdout)
-        const enable = this._executeCommand(`nuget sources enable ${SOURCE_NAME}`, { encoding: "utf8" }).stdout;
+        const enable = this._executeCommand(`nuget sources enable -Name ${SOURCE_NAME}`, { encoding: "utf8" }).stdout;
         console.log(enable);
 
         const list1 = this._executeCommand("nuget sources list", { encoding: "utf8" }).stdout;
