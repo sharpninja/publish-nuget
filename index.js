@@ -101,10 +101,14 @@ class Action {
 
         fs.readdirSync(".").filter(fn => /\.s?nupkg$/.test(fn)).forEach(fn => fs.unlinkSync(fn))
         
-        this._executeCommand(`dotnet pack ${this.includeSymbols ? "--include-symbols -p:SymbolPackageFormat=snupkg" : ""} -c Release ${this.projectFile} -o .`)
+        this._executeCommand(`dotnet pack ${this.projectFile} ${this.includeSymbols ? "--include-symbols -p:SymbolPackageFormat=snupkg" : ""} -c Release -o .`)
 
         const packages = fs.readdirSync(".").filter(fn => fn.endsWith("nupkg"))
         console.log(`Generated Package(s): ${packages.join(", ")}`)
+
+        if(packages.length === 0) {
+            throw Error('No packages were built.')
+        }
 
         const pushCmd = `nuget push *.nupkg -src ${(SOURCE_NAME)} ${this.nugetSource !== "GPR"? `-ApiKey ${this.nugetKey}`: ""} -SkipDuplicate ${!this.includeSymbols ? "-NoSymbols" : ""}`
         
