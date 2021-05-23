@@ -97,9 +97,9 @@ class Action {
         
         console.log(pushCmd);
 
-        const pushOutput = this._executeCommand(pushCmd, { encoding: "utf-8" }).stdout
+        const pushOutput = this._executeCommand(pushCmd, { encoding: "utf-8" }).stdio
 
-        console.log(pushOutput)
+        console.log(`pushOutput: ${pushOutput}`);
 
         if (/error/.test(pushOutput))
             this._printErrorAndExit(`${/error.*/.exec(pushOutput)[0]}`)
