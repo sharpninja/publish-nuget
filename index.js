@@ -56,11 +56,17 @@ class Action {
         console.log(`executing: [${cmd}]`)
         try {
             const INPUT = cmd.split(" "), TOOL = INPUT[0], ARGS = INPUT.slice(1)
-            const result = spawnSync(TOOL, ARGS, options).stdio
-            if(!result) throw new Error(`Calling '${cmd}' resulted in undefined stdio.`)
+            const result = spawnSync(TOOL, ARGS, options)
+            if(result === undefined) {
+                throw new Error(`Calling '${cmd}' resulted in undefined childProcess.`)
+            }
 
-            console.log(`result: ${result}`);
-            return result;
+            if(result.exitCode !== 0) {
+                throw new Error(`Calling '${cmd}' resulted in${os.EOL}${result.stderr}`)
+            }
+
+            console.log(`result: ${result.exitCode}, ${result.stdout}`);
+            return result.stdout;
         } catch(error) {
             throw error;
         }
