@@ -37,7 +37,7 @@ class Action {
             }
         } else {
             console.log(this.nugetSource + " is already in sources.")
-            console.log(this._executeCommand(`nuget sources Remove ${this.nugetSource}/v3/index.json`).stdio)
+            console.log(this._executeCommand(`nuget sources Remove -Source ${this.nugetSource}/v3/index.json`).stdio)
             addSourceCmd = `nuget sources add -Source ${this.nugetSource}/v3/index.json -name ${SOURCE_NAME}`
         }
 
@@ -199,28 +199,31 @@ class Action {
     }
 
     run() {
-        if (!this.projectFile || !fs.existsSync(this.projectFile))
-            this._printErrorAndExit("project file not found")
+        if(!this.NO_BUILD) {
+            if (!this.projectFile || !fs.existsSync(this.projectFile)) {
+                this._printErrorAndExit("project file not found")
+            }
 
-        console.log(`Project Filepath: ${this.projectFile}`)
+            console.log(`Project Filepath: ${this.projectFile}`)
 
-        if (!this.version) {
-            if (this.versionFile !== this.projectFile && !fs.existsSync(this.versionFile))
-                this._printErrorAndExit("version file not found")
+            if (!this.version) {
+                if (this.versionFile !== this.projectFile && !fs.existsSync(this.versionFile))
+                    this._printErrorAndExit("version file not found")
 
-            console.log(`Version Filepath: ${this.versionFile}`)
-            console.log(`Version Regex: ${this.versionRegex}`)
+                console.log(`Version Filepath: ${this.versionFile}`)
+                console.log(`Version Regex: ${this.versionRegex}`)
 
-            const versionFileContent = fs.readFileSync(this.versionFile, { encoding: "utf-8" }),
-                parsedVersion = this.versionRegex.exec(versionFileContent)
+                const versionFileContent = fs.readFileSync(this.versionFile, {encoding: "utf-8"}),
+                    parsedVersion = this.versionRegex.exec(versionFileContent)
 
-            if (!parsedVersion)
-                this._printErrorAndExit("unable to extract version info!")
+                if (!parsedVersion)
+                    this._printErrorAndExit("unable to extract version info!")
 
-            this.version = parsedVersion[1]
+                this.version = parsedVersion[1]
+            }
+
+            console.log(`Version: ${this.version}`)
         }
-
-        console.log(`Version: ${this.version}`)
 
         this._checkForUpdate()
     }
