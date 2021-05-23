@@ -25,7 +25,7 @@ class Action {
 
         const existingSources = this._executeCommand("nuget sources list", { encoding: "utf8" }).stdout;
         let addSourceCmd;
-        if(existingSources.includes(this.nugetSource) === false) {
+        if(existingSources.includes(this.nugetSource + "/v3/index.json") === false) {
             if (this.nugetSource.startsWith(`https://nuget.pkg.github.com/`)) {
                 this.sourceType = "GPR"
                 addSourceCmd = `nuget sourrces add -Source ${this.nugetSource}/index.json --name=${(SOURCE_NAME)} --username=${this.githubUser} --password=${this.nugetKey} --store-password-in-clear-text`
@@ -35,8 +35,8 @@ class Action {
             }
         } else {
             console.log(this.nugetSource + " is already in sources.")
-            console.log(this._executeCommand(`nuget sources Remove ${this.nugetSource}`).stdio)
-            addSourceCmd = `nuget sources add -Source ${this.nugetSource} -name ${SOURCE_NAME}`
+            console.log(this._executeCommand(`nuget sources Remove ${this.nugetSource}/v3/index.json`).stdio)
+            addSourceCmd = `nuget sources add -Source ${this.nugetSource}/v3/index.json -name ${SOURCE_NAME}`
         }
 
         console.log(this._executeCommand(addSourceCmd, { encoding: "utf-8" }).stdout)
