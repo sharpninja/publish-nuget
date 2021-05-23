@@ -116,12 +116,12 @@ class Action {
         const packageFilename = packages.filter(p => p.endsWith(".nupkg"))[0],
             symbolsFilename = packages.filter(p => p.endsWith(".snupkg"))[0]
 
-        process.write(`::set-output name=PACKAGE_NAME::${packageFilename}` + os.EOL)
-        process.write(`::set-output name=PACKAGE_PATH::${path.resolve(packageFilename)}` + os.EOL)
+        console.log(`::set-output name=PACKAGE_NAME::${packageFilename}` + os.EOL)
+        console.log(`::set-output name=PACKAGE_PATH::${path.resolve(packageFilename)}` + os.EOL)
 
         if (symbolsFilename) {
-            process.write(`::set-output name=SYMBOLS_PACKAGE_NAME::${symbolsFilename}` + os.EOL)
-            process.write(`::set-output name=SYMBOLS_PACKAGE_PATH::${path.resolve(symbolsFilename)}` + os.EOL)
+            console.log(`::set-output name=SYMBOLS_PACKAGE_NAME::${symbolsFilename}` + os.EOL)
+            console.log(`::set-output name=SYMBOLS_PACKAGE_PATH::${path.resolve(symbolsFilename)}` + os.EOL)
         }
 
         if (this.tagCommit)
