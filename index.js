@@ -4,8 +4,6 @@ const os = require("os"),
     https = require("https"),
     spawnSync = require("child_process").spawnSync
 
-const SOURCE_NAME = "default";
-
 class Action {
 
 
@@ -22,16 +20,19 @@ class Action {
         this.nugetSource = process.env.INPUT_NUGET_SOURCE || process.env.NUGET_SOURCE
         this.includeSymbols = JSON.parse(process.env.INPUT_INCLUDE_SYMBOLS || process.env.INCLUDE_SYMBOLS)
         this.throwOnVersionExixts = JSON.parse(process.env.INPUT_THOW_ERROR_IF_VERSION_EXISTS || process.env.THOW_ERROR_IF_VERSION_EXISTS)
+        this.sourceName = "nuget.org"
 
         const existingSources = this._executeCommand("dotnet nuget list source", { encoding: "utf8" }).stdout;
         if(existingSources.includes(this.nugetSource) === false) {
             let addSourceCmd;
             if (this.nugetSource.startsWith(`https://nuget.pkg.github.com/`)) {
                 this.sourceType = "GPR"
-                addSourceCmd = `dotnet nuget add source ${this.nugetSource}/index.json --name=${(SOURCE_NAME)} --username=${this.githubUser} --password=${this.nugetKey} --store-password-in-clear-text`
+                this.sourceName = "nuget.pkg.github.com"
+                addSourceCmd = `dotnet nuget add source ${this.nugetSource}/index.json --name=${(this.sourceName)} --username=${this.githubUser} --password=${this.nugetKey} --store-password-in-clear-text`
             } else {
                 this.sourceType = "NuGet"
-                addSourceCmd = `dotnet nuget add source ${this.nugetSource}/v3/index.json --name=${SOURCE_NAME}`
+                this.sourceName = this.nugetSource
+                addSourceCmd = `dotnet nuget add source ${this.nugetSource}/v3/index.json --name=${this.sourceName}`
             }
 
             console.log(this._executeCommand(addSourceCmd, { encoding: "utf-8" }).stdout)
@@ -40,7 +41,7 @@ class Action {
         }
         
         const list1 = this._executeCommand("dotnet nuget list source", { encoding: "utf8" }).stdout;
-        const enable = this._executeCommand(`dotnet nuget enable source ${SOURCE_NAME}`, { encoding: "utf8" }).stdout;
+        const enable = this._executeCommand(`dotnet nuget enable source ${this.sourceName}`, { encoding: "utf8" }).stdout;
         console.log(list1);
         console.log(enable);
     }
@@ -91,7 +92,7 @@ class Action {
         const packages = fs.readdirSync(".").filter(fn => fn.endsWith("nupkg"))
         console.log(`Generated Package(s): ${packages.join(", ")}`)
 
-        const pushCmd = `dotnet nuget push *.nupkg -s ${(SOURCE_NAME)} ${this.nugetSource !== "GPR"? `-k ${this.nugetKey}`: ""} --skip-duplicate ${!this.includeSymbols ? "-n 1" : ""}`
+        const pushCmd = `dotnet nuget push *.nupkg -s ${(this.sourceName)} ${this.nugetSource !== "GPR"? `-k ${this.nugetKey}`: ""} --skip-duplicate ${!this.includeSymbols ? "-n 1" : ""}`
 
         const pushOutput = this._executeCommand(pushCmd, { encoding: "utf-8" }).stdout
 
@@ -123,7 +124,7 @@ class Action {
         console.log(`Package Name: ${this.packageName}`)
 
         let url = ""
-        let options; //used for authentication
+        let options = { }
 
         //small hack to get package versions from Github Package Registry
         if (this.sourceType === "GPR") {
@@ -133,10 +134,10 @@ class Action {
                 auth:`${this.githubUser}:${this.nugetKey}`
             }
             console.log(`This is GPR, changing url for versioning...`)
-            console.log(url)
         } else {
             url = `${this.nugetSource}/v3-flatcontainer/${this.packageName}/index.json`
         }
+        console.log(`Requesting: ${url}`)
 
         https.get(url, options, (res) => {
             let body = ""
