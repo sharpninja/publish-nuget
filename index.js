@@ -20,18 +20,21 @@ class Action {
         this.nugetSource = process.env.INPUT_NUGET_SOURCE || process.env.NUGET_SOURCE
         this.includeSymbols = JSON.parse(process.env.INPUT_INCLUDE_SYMBOLS || process.env.INCLUDE_SYMBOLS)
         this.throwOnVersionExixts = JSON.parse(process.env.INPUT_THOW_ERROR_IF_VERSION_EXISTS || process.env.THOW_ERROR_IF_VERSION_EXISTS)
-        this.sourceName = "nuget.org"
+
+        if (this.nugetSource.startsWith(`https://api.nuget.org`)) {
+            this.sourceName = "nuget.org"
+        } else {
+            this.sourceName = this.nugetSource
+        }
 
         const existingSources = this._executeCommand("dotnet nuget list source", { encoding: "utf8" }).stdout;
         if(existingSources.includes(this.nugetSource) === false) {
             let addSourceCmd;
             if (this.nugetSource.startsWith(`https://nuget.pkg.github.com/`)) {
                 this.sourceType = "GPR"
-                this.sourceName = "nuget.pkg.github.com"
                 addSourceCmd = `dotnet nuget add source ${this.nugetSource}/index.json --name=${(this.sourceName)} --username=${this.githubUser} --password=${this.nugetKey} --store-password-in-clear-text`
             } else {
                 this.sourceType = "NuGet"
-                this.sourceName = this.nugetSource
                 addSourceCmd = `dotnet nuget add source ${this.nugetSource}/v3/index.json --name=${this.sourceName}`
             }
 
