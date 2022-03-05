@@ -79,6 +79,7 @@ NUGET_KEY | | API key to authenticate with NuGet server, or a token, issued for 
 NUGET_SOURCE | `https://api.nuget.org` | NuGet server uri hosting the packages, defaults to https://api.nuget.org
 INCLUDE_SYMBOLS | `false` | Flag to toggle pushing symbols along with nuget package to the server, disabled by default
 THOW_ERROR_IF_VERSION_EXISTS | `false` | Flag to throw an error when trying to publish an existing version of a package
+PACK_NO_BUILD | `true` | Adds the `--no-build` option to the `dotnet pack` command. Enabled by default.
 
 ## Outputs
 

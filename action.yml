@@ -45,6 +45,10 @@ inputs:
         description: Flag to throw an error when trying to publish an existing version of a package
         required: false
         default: false
+    PACK_NO_BUILD:
+        description: Adds the `--no-build` option to the `dotnet pack` command. Enabled by default.
+        required: false
+        default: true
 
 outputs:
     VERSION:
