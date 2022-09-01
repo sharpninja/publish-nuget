@@ -20,6 +20,7 @@ class Action {
         this.nugetSource = process.env.INPUT_NUGET_SOURCE || process.env.NUGET_SOURCE
         this.includeSymbols = JSON.parse(process.env.INPUT_INCLUDE_SYMBOLS || process.env.INCLUDE_SYMBOLS)
         this.throwOnVersionExixts = JSON.parse(process.env.INPUT_THOW_ERROR_IF_VERSION_EXISTS || process.env.THOW_ERROR_IF_VERSION_EXISTS)
+        this.pack_no_build = JSON.parse(process.env.INPUT_PACK_NO_BUILD || process.env.PACK_NO_BUILD);
 
         if (this.nugetSource.startsWith(`https://api.nuget.org`)) {
             this.sourceName = "nuget.org"
@@ -90,7 +91,8 @@ class Action {
         
         this._executeInProcess(`dotnet build -c Release ${this.projectFile}`)
 
-        this._executeInProcess(`dotnet pack ${this.includeSymbols ? "--include-symbols -p:SymbolPackageFormat=snupkg" : ""} --no-build -c Release ${this.projectFile} -o .`)
+        const noBuildOption = this.pack_no_build ? "--no-build": ""
+        this._executeInProcess(`dotnet pack ${this.includeSymbols ? "--include-symbols -p:SymbolPackageFormat=snupkg" : ""} ${noBuildOption} -c Release ${this.projectFile} -o .`)
 
         const packages = fs.readdirSync(".").filter(fn => fn.endsWith("nupkg"))
         console.log(`Generated Package(s): ${packages.join(", ")}`)
