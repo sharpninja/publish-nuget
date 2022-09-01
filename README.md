@@ -20,12 +20,12 @@ jobs:
       # - name: Setup dotnet
       #   uses: actions/setup-dotnet@v1
       #   with:
-      #     dotnet-version: 3.1.200
+      #     dotnet-version: '6.0.x'
 
       # Publish
       - name: publish on version change
         id: publish_nuget
-        uses: Rebel028/publish-nuget@v2.7.0
+        uses: Rebel028/publish-nuget@v2.8.0
         with:
           # Filepath of the project to be packaged, relative to root of repository
           PROJECT_FILE_PATH: Core/Core.csproj
@@ -59,6 +59,9 @@ jobs:
           
           # Flag to throw an error when trying to publish an existing version of a package
           # THOW_ERROR_IF_VERSION_EXISTS: false
+          
+          # Flag to add the `--no-build` option to the `dotnet pack` command. Enabled by default.
+          # PACK_NO_BUILD: true
 ```
 
 - Project gets published only if there's a `NUGET_KEY` configured in the repository
